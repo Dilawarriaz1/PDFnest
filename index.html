@@ -2,120 +2,212 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PDFnest</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    body { margin:0; font-family:'Poppins',sans-serif; background: #f5f7fa; color:#333; }
-    header { background:#4a90e2; color:#fff; padding:1rem 2rem; display:flex; align-items:center; }
-    header h1 { flex:1; font-size:1.5rem; margin:0; }
-    #search { padding:0.5rem; font-size:1rem; border-radius:4px; border:none; width:200px; }
-    #helpBtn { margin-left:1rem; background:#fff;color:#4a90e2;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer; }
-    nav { display:flex; flex-wrap:wrap; padding:1rem 2rem; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,.1); }
-    .tool-btn { margin:0.5rem; padding:1rem 1.5rem; background:#e1eaff; border:none; border-radius:4px; cursor:pointer; flex:1 1 150px; text-align:center; font-weight:600; }
-    main { padding:2rem; display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
-    .tool { background:#fff; padding:1.5rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
-    footer { text-align:center; padding:1rem; margin-top:2rem; color:#777; }
-    /* Help Modal */
-    .modal { display:none; position:fixed; top:0; left:0;width:100%;height:100%;background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-    .modal-content { background:#fff; padding:2rem; border-radius:8px; max-width:500px; }
-    .close { float:right; cursor:pointer; font-size:1.2rem; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4f8;
+      color: #333;
+    }
+    header {
+      background: #0052cc;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    #search {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: none;
+      width: 200px;
+    }
+    #helpBtn {
+      margin-left: 1rem;
+      background: white;
+      color: #0052cc;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      background: #fff;
+      padding: 1rem;
+      gap: 0.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .tool-btn {
+      background: #dfeaff;
+      color: #003d99;
+      border: none;
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      flex: 1 1 auto;
+      min-width: 150px;
+      transition: 0.3s;
+    }
+    .tool-btn:hover {
+      background: #c1d7ff;
+    }
+    main {
+      padding: 2rem;
+    }
+    .tool {
+      display: none;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+      color: #888;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 500px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Ultimate PDF Toolkit</h1>
-    <input id="search" type="text" placeholder="Search tools..." oninput="filterTools()" />
+    <h1>PDF Toolkit</h1>
+    <input type="text" id="search" placeholder="Search tools..." oninput="filterTools()" />
     <button id="helpBtn">Help</button>
   </header>
 
-  <nav id="toolbar"></nav>
+  <nav id="toolbar">
+    <!-- Buttons will be injected here -->
+  </nav>
 
-  <main id="toolsGrid"></main>
+  <main id="toolsGrid">
+    <!-- Tool sections injected here -->
+  </main>
 
   <div id="helpModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeHelp()">&times;</span>
-      <h2>How to Use</h2>
-      <p>Select a tool from the toolbar above. Upload or record your file, then click “Run”. Results will appear below.</p>
+      <h2>Help & Instructions</h2>
+      <p>Select any tool from the toolbar to convert or edit your PDFs. Upload the file and click “Run”.</p>
     </div>
   </div>
 
-  <footer>&copy; 2025 PDF Toolkit Inc.</footer>
+  <footer>&copy; 2025 Ultimate PDF Toolkit</footer>
 
   <script>
     const tools = [
-      {id:'img2pdf', name:'Image → PDF', handler: imgToPDF},
-      {id:'word2pdf', name:'Word → PDF', handler: wordToPDF},
-      {id:'voice2pdf', name:'Voice → PDF', handler: voiceToPDF},
-      {id:'jpg2pdf', name:'JPG → PDF', handler: imgToPDF},
-      {id:'text2pdf', name:'Text → PDF', handler: textToPDF},
-      {id:'pdf2text', name:'PDF → Text', handler: pdfToText},
-      {id:'compress', name:'Compress PDF', handler: compressPDF},
-      {id:'pdf2excel', name:'PDF → Excel', handler: pdfToExcel},
-      {id:'editpdf', name:'Edit PDF', handler: editPDF},
-      {id:'editborder', name:'Edit Border', handler: editBorder},
-      {id:'rotate', name:'Rotate PDF', handler: rotatePDF},
+      { id: 'img2pdf', name: 'Image → PDF', handler: imgToPDF },
+      { id: 'word2pdf', name: 'Word → PDF', handler: wordToPDF },
+      { id: 'voice2pdf', name: 'Voice → PDF', handler: voiceToPDF },
+      { id: 'jpg2pdf', name: 'JPG → PDF', handler: jpgToPDF },
+      { id: 'text2pdf', name: 'Text → PDF', handler: textToPDF },
+      { id: 'pdf2text', name: 'PDF → Text', handler: pdfToText },
+      { id: 'compress', name: 'Compress PDF', handler: compressPDF },
+      { id: 'pdf2excel', name: 'PDF → Excel', handler: pdfToExcel },
+      { id: 'editpdf', name: 'Edit PDF', handler: editPDF },
+      { id: 'editborder', name: 'Edit Border in PDF', handler: editBorder },
+      { id: 'rotate', name: 'Rotate PDF', handler: rotatePDF }
     ];
 
-    function setup() {
-      const toolbar = document.getElementById('toolbar'), grid = document.getElementById('toolsGrid');
-      tools.forEach(t => {
+    function setupUI() {
+      const toolbar = document.getElementById('toolbar');
+      const grid = document.getElementById('toolsGrid');
+
+      tools.forEach(tool => {
+        // Toolbar Button
         const btn = document.createElement('button');
         btn.className = 'tool-btn';
-        btn.innerText = t.name;
-        btn.onclick = () => activateTool(t);
+        btn.innerText = tool.name;
+        btn.onclick = () => activateTool(tool.id);
         toolbar.appendChild(btn);
 
+        // Tool Section
         const section = document.createElement('div');
         section.className = 'tool';
-        section.id = t.id;
-        section.style.display = 'none';
+        section.id = tool.id;
         section.innerHTML = `
-          <h2>${t.name}</h2>
-          <input type="file" id="${t.id}-in" ${t.id==='voice2pdf'?'' :'accept=': '"*/*"'} />
-          ${t.id==='voice2pdf'?'<button onclick="startRecording()">🎙️ Record</button><p id="recStatus"></p>':''}
-          <button onclick="${t.id}()">Run</button>
-          <div id="${t.id}-out"></div>
+          <h2>${tool.name}</h2>
+          <input type="file" id="${tool.id}-input" />
+          <br><br>
+          <button onclick="${tool.handler.name}()">Run</button>
+          <div id="${tool.id}-result" style="margin-top:1rem;"></div>
         `;
         grid.appendChild(section);
       });
     }
 
-    function activateTool(tool) {
+    function activateTool(toolId) {
       tools.forEach(t => {
-        document.getElementById(t.id).style.display = (t.id===tool.id)?'block':'none';
+        document.getElementById(t.id).style.display = t.id === toolId ? 'block' : 'none';
       });
     }
 
     function filterTools() {
-      const q = document.getElementById('search').value.toLowerCase();
-      tools.forEach(t => {
-        const btn = [...document.getElementsByClassName('tool-btn')].find(b => b.innerText===t.name);
-        btn.style.display = t.name.toLowerCase().includes(q)?'inline-block':'none';
+      const query = document.getElementById('search').value.toLowerCase();
+      Array.from(document.getElementsByClassName('tool-btn')).forEach(btn => {
+        btn.style.display = btn.innerText.toLowerCase().includes(query) ? 'inline-block' : 'none';
       });
     }
 
-    // Placeholder handlers – integrate your backend/WASM logic
-    async function imgToPDF() { alert("Convert image to PDF"); }
-    async function wordToPDF() { alert("Convert Word to PDF"); }
-    async function voiceToPDF() { alert("Convert Voice to PDF"); }
-    async function textToPDF() { alert("Convert text to PDF"); }
-    async function pdfToText() { alert("Extract text from PDF"); }
-    async function compressPDF() { alert("Compress PDF"); }
-    async function pdfToExcel() { alert("Convert PDF to Excel"); }
-    async function editPDF() { alert("Edit PDF content"); }
-    async function editBorder() { alert("Edit PDF border/margin"); }
-    async function rotatePDF() { alert("Rotate PDF pages"); }
+    function closeHelp() {
+      document.getElementById('helpModal').style.display = 'none';
+    }
 
-    // Simple Help modal
     document.getElementById('helpBtn').onclick = () => {
       document.getElementById('helpModal').style.display = 'flex';
     };
-    window.closeHelp = () => document.getElementById('helpModal').style.display = 'none';
-    window.onclick = e => { if (e.target === document.getElementById('helpModal')) closeHelp(); };
 
-    window.onload = setup;
+    // Placeholder handlers — integrate real logic here
+    function imgToPDF() { alert("Running: Image to PDF"); }
+    function wordToPDF() { alert("Running: Word to PDF"); }
+    function voiceToPDF() { alert("Running: Voice to PDF"); }
+    function jpgToPDF() { alert("Running: JPG to PDF"); }
+    function textToPDF() { alert("Running: Text to PDF"); }
+    function pdfToText() { alert("Running: PDF to Text"); }
+    function compressPDF() { alert("Running: Compress PDF"); }
+    function pdfToExcel() { alert("Running: PDF to Excel"); }
+    function editPDF() { alert("Running: Edit PDF"); }
+    function editBorder() { alert("Running: Edit PDF Border"); }
+    function rotatePDF() { alert("Running: Rotate PDF"); }
+
+    window.onload = setupUI;
   </script>
 </body>
 </html>
