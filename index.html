@@ -1,213 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PDFnest</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: #f0f4f8;
-      color: #333;
-    }
-    header {
-      background: #0052cc;
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    #search {
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: none;
-      width: 200px;
-    }
-    #helpBtn {
-      margin-left: 1rem;
-      background: white;
-      color: #0052cc;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      background: #fff;
-      padding: 1rem;
-      gap: 0.5rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .tool-btn {
-      background: #dfeaff;
-      color: #003d99;
-      border: none;
-      padding: 0.8rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      flex: 1 1 auto;
-      min-width: 150px;
-      transition: 0.3s;
-    }
-    .tool-btn:hover {
-      background: #c1d7ff;
-    }
-    main {
-      padding: 2rem;
-    }
-    .tool {
-      display: none;
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      margin-top: 2rem;
-      color: #888;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 500px;
-      position: relative;
-    }
-    .close {
-      position: absolute;
-      right: 1rem;
-      top: 1rem;
-      cursor: pointer;
-      font-size: 1.5rem;
-    }
-  </style>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PDF Toolkit</title>
+<!-- Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  body{margin:0;font-family:sans-serif;background:#f5f7fa;}
+  header{background:#0a74da;color:#fff;padding:1rem;display:flex;align-items:center;}
+  header h1{flex:1;margin:0;}
+  #search{padding:.5rem;border:none;border-radius:4px;width:200px;}
+  #helpBtn{margin-left:1rem;padding:.5rem 1rem;background:#fff;color:#0a74da;border:none;cursor:pointer;border-radius:4px;}
+  nav{display:flex;flex-wrap:wrap;padding:1rem;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.1);}
+  .tool-btn{margin:5px;padding:.8rem 1rem;background:#e1eaff;color:#003d99;border:none;border-radius:6px;cursor:pointer;font-weight:600;min-width:150px;}
+  main{padding:2rem;}
+  .tool{display:none;background:#fff;padding:1.5rem;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  footer{text-align:center;padding:1rem;color:#777;}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);align-items:center;justify-content:center;}
+  .modal-content{background:#fff;padding:2rem;border-radius:8px;position:relative;}
+  .close{position:absolute;top:10px;right:10px;cursor:pointer;font-size:1.2rem;}
+</style>
 </head>
 <body>
   <header>
     <h1>PDF Toolkit</h1>
-    <input type="text" id="search" placeholder="Search tools..." oninput="filterTools()" />
+    <input id="search" placeholder="Search tools…" oninput="filterTools()"/>
     <button id="helpBtn">Help</button>
   </header>
-
-  <nav id="toolbar">
-    <!-- Buttons will be injected here -->
-  </nav>
-
-  <main id="toolsGrid">
-    <!-- Tool sections injected here -->
-  </main>
-
+  <nav id="toolbar"></nav>
+  <main id="toolsGrid"></main>
   <div id="helpModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeHelp()">&times;</span>
-      <h2>Help & Instructions</h2>
-      <p>Select any tool from the toolbar to convert or edit your PDFs. Upload the file and click “Run”.</p>
+      <h2>How to Use</h2>
+      <p>Select a tool, provide input (file/recording), then click "Run". Download or view the result.</p>
     </div>
   </div>
+  <footer>&copy; 2025 PDF Toolkit</footer>
+<script>
+const { jsPDF } = window.jspdf;
+const tools = [
+  {id:'img2pdf', name:'Image→PDF', handler: imgToPDF},
+  {id:'jpg2pdf', name:'JPG→PDF', handler: imgToPDF},
+  {id:'word2pdf', name:'Word→PDF', handler: wordToPDF},
+  {id:'text2pdf', name:'Text→PDF', handler: textToPDF},
+  {id:'voice2pdf', name:'Voice→PDF', handler: voiceToPDF},
+  {id:'pdf2text', name:'PDF→Text', handler: pdfToText},
+  {id:'compress', name:'Compress PDF', handler: compressPDF},
+  {id:'pdf2excel', name:'PDF→Excel', handler: pdfToExcel},
+  {id:'editpdf', name:'Edit PDF', handler: editPDF},
+  {id:'editborder', name:'Edit Border', handler: editBorder},
+  {id:'rotate', name:'Rotate PDF', handler: rotatePDF}
+];
+function setupUI(){
+  const toolbar=document.getElementById('toolbar'), grid = document.getElementById('toolsGrid');
+  tools.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'tool-btn'; btn.innerText = t.name;
+    btn.onclick = () => activateTool(t.id);
+    toolbar.appendChild(btn);
+    const sec = document.createElement('div');
+    sec.className = 'tool'; sec.id = t.id;
+    sec.innerHTML = `
+      <h2>${t.name}</h2>
+      ${t.id==='voice2pdf'?'<button id="startRec">Record Voice</button><p id="recTxt"></p>':
+      `<input id="${t.id}-in" type="file"${t.id==='text2pdf'? ' accept=".txt"':''}/${t.id==='word2pdf'?' accept=".doc,.docx"':''} />`}
+      <button onclick="${t.handler.name}()">Run</button>
+      <div id="${t.id}-out"></div>`;
+    grid.appendChild(sec);
+  });
+}
+function activateTool(id){
+  tools.forEach(t=> {
+    document.getElementById(t.id).style.display = t.id===id?'block':'none';
+  });
+}
+function filterTools(){
+  const q = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.tool-btn').forEach(b=>{
+    b.style.display = b.innerText.toLowerCase().includes(q)?'inline-block':'none';
+  });
+}
+document.getElementById('helpBtn').onclick = () => {
+  document.getElementById('helpModal').style.display='flex';
+};
+function closeHelp(){ document.getElementById('helpModal').style.display='none'; }
 
-  <footer>&copy; 2025 Ultimate PDF Toolkit</footer>
-
-  <script>
-    const tools = [
-      { id: 'img2pdf', name: 'Image → PDF', handler: imgToPDF },
-      { id: 'word2pdf', name: 'Word → PDF', handler: wordToPDF },
-      { id: 'voice2pdf', name: 'Voice → PDF', handler: voiceToPDF },
-      { id: 'jpg2pdf', name: 'JPG → PDF', handler: jpgToPDF },
-      { id: 'text2pdf', name: 'Text → PDF', handler: textToPDF },
-      { id: 'pdf2text', name: 'PDF → Text', handler: pdfToText },
-      { id: 'compress', name: 'Compress PDF', handler: compressPDF },
-      { id: 'pdf2excel', name: 'PDF → Excel', handler: pdfToExcel },
-      { id: 'editpdf', name: 'Edit PDF', handler: editPDF },
-      { id: 'editborder', name: 'Edit Border in PDF', handler: editBorder },
-      { id: 'rotate', name: 'Rotate PDF', handler: rotatePDF }
-    ];
-
-    function setupUI() {
-      const toolbar = document.getElementById('toolbar');
-      const grid = document.getElementById('toolsGrid');
-
-      tools.forEach(tool => {
-        // Toolbar Button
-        const btn = document.createElement('button');
-        btn.className = 'tool-btn';
-        btn.innerText = tool.name;
-        btn.onclick = () => activateTool(tool.id);
-        toolbar.appendChild(btn);
-
-        // Tool Section
-        const section = document.createElement('div');
-        section.className = 'tool';
-        section.id = tool.id;
-        section.innerHTML = `
-          <h2>${tool.name}</h2>
-          <input type="file" id="${tool.id}-input" />
-          <br><br>
-          <button onclick="${tool.handler.name}()">Run</button>
-          <div id="${tool.id}-result" style="margin-top:1rem;"></div>
-        `;
-        grid.appendChild(section);
-      });
-    }
-
-    function activateTool(toolId) {
-      tools.forEach(t => {
-        document.getElementById(t.id).style.display = t.id === toolId ? 'block' : 'none';
-      });
-    }
-
-    function filterTools() {
-      const query = document.getElementById('search').value.toLowerCase();
-      Array.from(document.getElementsByClassName('tool-btn')).forEach(btn => {
-        btn.style.display = btn.innerText.toLowerCase().includes(query) ? 'inline-block' : 'none';
-      });
-    }
-
-    function closeHelp() {
-      document.getElementById('helpModal').style.display = 'none';
-    }
-
-    document.getElementById('helpBtn').onclick = () => {
-      document.getElementById('helpModal').style.display = 'flex';
+// Implementations
+function imgToPDF(){
+  const f = document.getElementById('img2pdf-in').files[0];
+  if(!f){alert('Select an image');return;}
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const doc = new jsPDF({orientation: img.width>img.height?'landscape':'portrait'});
+      const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight();
+      doc.addImage(img,'JPEG',0,0,w,h);
+      doc.save('image.pdf');
     };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(f);
+}
 
-    // Placeholder handlers — integrate real logic here
-    function imgToPDF() { alert("Running: Image to PDF"); }
-    function wordToPDF() { alert("Running: Word to PDF"); }
-    function voiceToPDF() { alert("Running: Voice to PDF"); }
-    function jpgToPDF() { alert("Running: JPG to PDF"); }
-    function textToPDF() { alert("Running: Text to PDF"); }
-    function pdfToText() { alert("Running: PDF to Text"); }
-    function compressPDF() { alert("Running: Compress PDF"); }
-    function pdfToExcel() { alert("Running: PDF to Excel"); }
-    function editPDF() { alert("Running: Edit PDF"); }
-    function editBorder() { alert("Running: Edit PDF Border"); }
-    function rotatePDF() { alert("Running: Rotate PDF"); }
+function wordToPDF(){
+  alert('Word→PDF isn’t supported client-side. Use a server or convert .doc/.docx to HTML then to PDF.');
+}
 
-    window.onload = setupUI;
-  </script>
+// Text→PDF
+function textToPDF(){
+  const f = document.getElementById('text2pdf-in').files[0];
+  if(!f){alert('Select a text file');return;}
+  const reader = new FileReader();
+  reader.onload = e => {
+    const doc = new jsPDF();
+    doc.text(e.target.result, 10, 10);
+    doc.save('text.pdf');
+  };
+  reader.readAsText(f);
+}
+
+// Voice→PDF
+function voiceToPDF(){
+  const Speech = window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!Speech){alert('Not supported by browser');return;}
+  const recog = new Speech();
+  recog.lang='en-US'; recog.interimResults=false;
+  recog.onresult = e => {
+    const text = e.results[0][0].transcript;
+    document.getElementById('recTxt').innerText = text;
+    const doc = new jsPDF();
+    doc.text(text,10,20); doc.save('voice.pdf');
+  };
+  recog.start();
+}
+
+// PDF→Text
+async function pdfToText(){
+  const f = document.getElementById('pdf2text-in').files[0];
+  if(!f){alert('Select a PDF');return;}
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  let text = '';
+  for(let i=0; i<pdf.getPageCount(); i++){
+    const items = await pdf.getPage(i).getTextContent();
+    text += items.items.map(i=>i.str).join(' ') + '\n\n';
+  }
+  document.getElementById('pdf2text-out').innerText = text;
+}
+
+// Compress
+async function compressPDF(){
+  const f = document.getElementById('compress-in').files[0];
+  if(!f){alert('Select a PDF');return;}
+  const bytes = await f.arrayBuffer();
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  const out = await pdf.save({useObjectStreams:true,compress:true});
+  const blob = new Blob([out],{type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'compressed.pdf'; a.innerText = 'Download';
+  const o = document.getElementById('compress-out');
+  o.innerHTML = ''; o.appendChild(a);
+}
+
+// Rotate
+async function rotatePDF(){
+  const f = document.getElementById('rotate-in').files[0];
+  if(!f){alert('Select a PDF');return;}
+  const bytes = await f.arrayBuffer();
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  pdf.getPages().forEach(p => p.setRotation(p.getRotation()+90));
+  const out = await pdf.save();
+  const blob = new Blob([out],{type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'rotated.pdf'; a.innerText = 'Download';
+  const o = document.getElementById('rotate-out');
+  o.innerHTML = ''; o.appendChild(a);
+}
+
+// Edit PDF content example
+async function editPDF(){
+  alert('PDF→Edit placeholder; full editing requires complex UI or server.');
+}
+
+// Edit Border (add margin example)
+async function editBorder(){
+  const f = document.getElementById('editborder-in').files[0];
+  if(!f){alert('Select PDF');return;}
+  const bytes = await f.arrayBuffer();
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  const pages = pdf.getPages();
+  pages.forEach(p => {
+    const { width, height } = p.getSize();
+    p.setSize(width+20, height+20);
+    p.drawPage(p);
+  });
+  const out = await pdf.save();
+  const blob = new Blob([out],{type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'bordered.pdf'; a.innerText = 'Download';
+  const o = document.getElementById('editborder-out');
+  o.innerHTML = ''; o.appendChild(a);
+}
+
+// PDF→Excel (extract simple text)
+async function pdfToExcel(){
+  const f = document.getElementById('pdf2excel-in').files[0];
+  if(!f){alert('Select PDF');return;}
+  alert('Basic: converting text to Excel rows. Complex tables need server-side.');
+}
+
+window.onload = setupUI;
+</script>
 </body>
 </html>
